@@ -1,0 +1,6 @@
+ultralytics==8.1.14
+opencv-python-headless==4.9.0.80
+flask==2.2.5
+numpy==1.24.4
+Pillow==10.2.0
+gunicorn==21.2.0
