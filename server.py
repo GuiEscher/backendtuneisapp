@@ -15,7 +15,7 @@ import zipfile
 import json
 
 # Carregando o modelo treinado
-model_path = r"D:\tuneisappflutter\tuneisappflutter\server\18-12-24-Model-best (2).pt"
+model_path = os.path.join("models", "model.pt")
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file not found at: {model_path}")
 
