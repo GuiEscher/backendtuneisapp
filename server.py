@@ -3,6 +3,7 @@
 import torch
 from ultralytics import YOLO
 from ultralytics.nn.tasks import SegmentationModel
+from ultralytics.nn.modules.conv import Conv
 from torch.nn.modules.container import Sequential
 import cv2 as cv
 import numpy as np
@@ -17,8 +18,8 @@ import tempfile
 import zipfile
 import json
 
-# Adicionar SegmentationModel e Sequential aos globals seguros para evitar erro de torch.load
-torch.serialization.add_safe_globals([SegmentationModel, Sequential])
+# Adicionar SegmentationModel, Sequential e Conv aos globals seguros para evitar erro de torch.load
+torch.serialization.add_safe_globals([SegmentationModel, Sequential, Conv])
 
 # Carregando o modelo treinado
 model_path = os.path.join("models", "model.pt")
