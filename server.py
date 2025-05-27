@@ -66,11 +66,10 @@ def process_frame(frame):
             if conf < 0.3:
                 continue  # Ignore low-confidence detections
 
-            # Calculate bounding box area
+            # Calculate bounding box coordinates
             x_center, y_center, width, height = map(float, box.xywhn[0])
             width_total = width * frame.shape[1]
             height_total = height * frame.shape[0]
-            area = width_total * height_total
 
             # Convert normalized coordinates to pixels
             x1 = int((x_center * frame.shape[1]) - width_total / 2)
@@ -266,7 +265,8 @@ def run_server():
     temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
     os.makedirs(temp_dir, exist_ok=True)
     
-    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT or fallback
+    port = int(os.environ.get("PORT", 10000))  # Use Render's PORT or fallback
+    print(f"Starting server on port: {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
