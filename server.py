@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+import torch
 from ultralytics import YOLO
+from ultralytics.nn.tasks import SegmentationModel
 import cv2 as cv
 import numpy as np
 from flask import Flask, request, jsonify, Response
@@ -14,8 +16,15 @@ import tempfile
 import zipfile
 import json
 
+# Adicionar SegmentationModel aos globals seguros para evitar erro de torch.load
+torch.serialization.add_safe_globals([SegmentationModel])
+
 # Carregando o modelo treinado
 model_path = os.path.join("models", "model.pt")
+print(f"Verificando model path: {model_path}")
+print(f"Model path exists: {os.path.exists(model_path)}")
+print(f"Current working directory: {os.getcwd()}")
+print(f"Files in models directory: {os.listdir('models') if os.path.exists('models') else 'models directory not found'}")
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file not found at: {model_path}")
 
