@@ -7,12 +7,6 @@ import cv2 as cv
 import numpy as np
 from flask import Flask, request, jsonify, Response
 from ultralytics import YOLO
-from ultralytics.nn.tasks import SegmentationModel
-from ultralytics.nn.modules.conv import Conv
-from torch.nn.modules.container import Sequential
-from torch.nn.modules.conv import Conv2d
-from torch.nn.modules.batchnorm import BatchNorm2d
-from torch.nn.modules.activation import ReLU, SiLU  # Common activation functions
 from PIL import Image as PILImage
 import threading
 import time
@@ -20,17 +14,12 @@ import io
 import tempfile
 import zipfile
 
-# Add all necessary classes to safe_globals to avoid torch.load errors
-torch.serialization.add_safe_globals([
-    SegmentationModel,
-    Sequential,
-    Conv,
-    Conv2d,
-    Conv2d,  # Added twice for safety, no harm if redundant
-    BatchNorm2d,
-    ReLU,
-    SiLU
-])
+# Override torch.load to use weights_only=False
+orig_torch_load = torch.load
+def custom_torch_load(*args, **kwargs):
+    kwargs['weights_only'] = False
+    return orig_torch_load(*args, **kwargs)
+torch.load = custom_torch_load
 
 # Load the trained model
 model_path = os.path.join("models", "model.pt")
@@ -63,7 +52,7 @@ def initialize_camera():
     global camera
     camera = cv.VideoCapture(0)
     if not camera.isOpened():
-        raise RuntimeError("Could not open camera")
+        raise RuntimeError("Failed to open camera")
 
 def process_frame(frame):
     results = model(frame)  # Perform prediction on the frame
@@ -124,8 +113,7 @@ def process_frame(frame):
                 "x_center": x_center,
                 "y_center": y_center,
                 "width": width,
-                "height": height,
-                "area": area
+                "height": height
             })
     
     return frame, detections, log_message
@@ -274,11 +262,11 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 def run_server():
-    # Create temporary directory if it doesn't exist
+    # Create temporary directory
     temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
     os.makedirs(temp_dir, exist_ok=True)
     
-    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT or fallback to 5000
+    port = int(os.environ.get("PORT", 5000))  # Use Render's PORT or fallback
     app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
