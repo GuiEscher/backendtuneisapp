@@ -5,12 +5,12 @@ from ultralytics import YOLO
 from ultralytics.nn.tasks import SegmentationModel
 from ultralytics.nn.modules.conv import Conv
 from torch.nn.modules.container import Sequential
+from torch.nn.modules.conv import Conv2d
 import cv2 as cv
 import numpy as np
 from flask import Flask, request, jsonify, Response
 import threading
 import time
-from werkzeug.serving import make_server
 import io
 from PIL import Image as PILImage
 import os
@@ -18,8 +18,8 @@ import tempfile
 import zipfile
 import json
 
-# Adicionar SegmentationModel, Sequential e Conv aos globals seguros para evitar erro de torch.load
-torch.serialization.add_safe_globals([SegmentationModel, Sequential, Conv])
+# Adicionar classes necessárias aos globals seguros para evitar erro de torch.load
+torch.serialization.add_safe_globals([SegmentationModel, Sequential, Conv, Conv2d])
 
 # Carregando o modelo treinado
 model_path = os.path.join("models", "model.pt")
@@ -267,9 +267,8 @@ def run_server():
     temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
     os.makedirs(temp_dir, exist_ok=True)
     
-    server = make_server('0.0.0.0', 5000, app)
-    print("Servidor iniciado em http://0.0.0.0:5000")
-    server.serve_forever()
+    port = int(os.environ.get("PORT", 5000))  # Usa PORT do Render ou 5000 como fallback
+    app.run(host='0.0.0.0', port=port, debug=False)
 
 if __name__ == '__main__':
     run_server()
